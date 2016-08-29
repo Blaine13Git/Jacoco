@@ -32,7 +32,12 @@ public class JacocoInstrumentation extends Instrumentation implements FinishList
         Calendar calendar = Calendar.getInstance();
         String myTime = startTime.format(calendar.getTime());
 
-        code_coverage_file = "/sdcard/coverage_" + myTime + ".ec";
+        File codeCoverageDir = new File("/sdcard/codeCoverage");
+        if(!codeCoverageDir .exists()  && !codeCoverageDir .isDirectory()){
+            codeCoverageDir .mkdir();
+        }
+
+        code_coverage_file = codeCoverageDir+"/coverage_" + myTime + ".ec";
 
         File file = new File(code_coverage_file);
         if (!file.exists()) {
