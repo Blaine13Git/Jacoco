@@ -1,0 +1,72 @@
+apply plugin: 'com.android.application'
+apply plugin: 'jacoco'
+
+android {
+    compileSdkVersion 24
+    buildToolsVersion "24.0.1"
+
+    defaultConfig {
+        applicationId "com.windsing.fctest"
+        minSdkVersion 19
+        targetSdkVersion 24
+        versionCode 1
+        versionName "1.0"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+        debug{
+            testCoverageEnabled = true
+        }
+    }
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    testCompile 'junit:junit:4.12'
+    compile 'com.android.support:appcompat-v7:24.2.0'
+}
+
+// jacoco code coverage
+def coverageSourceDirs = [
+        './src/main/java',
+]
+
+/*
+def ecFiles = [
+        './coverageECs/coverage.ec',
+        './coverageECs/coverage1.ec'
+]
+*/
+
+task jacocoTestReport(type: JacocoReport) {
+    group = "Reporting"
+    description = "Generate Jacoco coverage reports after running."
+    reports {
+        html.enabled = true
+        html.destination = "${buildDir}/reports/html"
+    }
+    classDirectories = fileTree(
+            dir: './build/intermediates/classes/debug/com',
+            excludes: ['**/R*.class',
+                       '**/*$InjectAdapter.class',
+                       '**/*$ModuleAdapter.class',
+                       '**/*$ViewInjector*.class'
+            ])
+    sourceDirectories = files(coverageSourceDirs)
+    executionData = fileTree(dir: './coverageECs/',)
+
+    //executionData = files(ecFiles)
+    //executionData = files("$buildDir/coverage.ec","$buildDir/coverage1.ec")
+
+    doFirst {
+        new File("$buildDir/intermediates/classes/").eachFileRecurse { file ->
+            if (file.name.contains('$$')) {
+                file.renameTo(file.path.replace('$$', '$'))
+            }
+        }
+    }
+
+}
